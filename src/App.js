@@ -7,6 +7,8 @@ function App() {
   const [graph, setGraph] = React.useState("");
   const [vertexSet, setVertexSet] = React.useState("");
   const [edgeSet, setEdgeSet] = React.useState("");
+  const [origen, setOrigen] = React.useState("6");
+  const [destino, setDestino] = React.useState("5");
 
   const AddVertex = () => {
     const regex = /(?<=\{)(.*?)(?=\})/g;
@@ -19,7 +21,6 @@ function App() {
         object += item + ";";
       });
       setGraph(graph + object);
-      console.log("AddVertex");
     }
   };
 
@@ -41,6 +42,8 @@ function App() {
       });
       setGraph(object);
     }
+    console.log(edgeSet);
+    findRoute();
   };
 
   const unPaintEdge = () => {
@@ -76,6 +79,39 @@ function App() {
         setGraph(graph + object);
       });
     }
+  };
+
+  const findRoute = () => {
+    debugger;
+    const regex = /(?<=\()(.*?)(?=\))/g;
+    const found = edgeSet.match(regex);
+
+    let ruta = "";
+    let pointer = origen;
+
+    if (found) {
+      found.forEach((item) => {
+        const splitEdge = item.split(",");
+        if (splitEdge[1] === destino) {
+          ruta += `${splitEdge[0]} -- ${splitEdge[1]}[color=red,penwidth=3.0];`;
+          setGraph(graph + ruta);
+          return;
+        }
+        if (splitEdge[0] === pointer) {
+          pointer = splitEdge[1];
+          ruta += `${splitEdge[0]} -- ${splitEdge[1]}[color=red,penwidth=3.0];`;
+        } else if (splitEdge[0] === origen) {
+          pointer = splitEdge[1];
+          ruta = `${splitEdge[0]} -- ${splitEdge[1]}[color=red,penwidth=3.0];`;
+        }
+      });
+    }
+    if (pointer !== destino) {
+      unPaintEdge();
+      alert("Ruta no disponible");
+    }
+    console.log("ruta", ruta);
+    console.log("destino", pointer);
   };
 
   const handleVertexChange = (e) => {
@@ -122,7 +158,7 @@ function App() {
       </Button>
       <Button
         onClick={() => {
-          paintEdge();
+          findRoute();
         }}
       >
         Paint Edge
